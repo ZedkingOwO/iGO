@@ -876,3 +876,195 @@ var a,_,c = 1 2 3 int
 运行这个磁盘上的二进制可执行文件，运行在当前0s上，变成进程，进程要不要占内存空问?要的吗?变量、常量、值在这块内存中放着
 ```
 
+
+
+**包内包外**
+
+```go
+// 同一个目录下只能有一个包
+main  函数叫做入口函数
+
+// 包内可见 不同文件用同一个包 我在B文件顶一个 var b = "abc" （全局变量，包内可见） 我在A文件调用这个包虽然没有定义也可以使用B定义变量；
+var ABC = 100  // 全局包外可见/包内也可以
+
+使用 imoprt 导入的包 如果是包外可见 就可以用 如果是小写就不能用
+使用package 使用同一个包 即使不在同一个文件中定义过也可以跨文件调用。同一个包内不同的go文件可以互相访问变量，但是就近原则
+
+全局不能用短格式
+```
+
+![image-20240505180011483](./../images/image-20240505180011483.png)
+
+![image-20240505191038056](./../images/image-20240505191038056.png)
+
+
+
+
+
+# 4 类型
+
+## 4.1 布尔型
+
+```go
+// bool在go中不是int类型，也不是其他整数类型。在go中，boo1就是布尔型，和整型没有关系，就是完全不同的类型。
+true false 字面常量 = bool
+```
+
+
+
+## 4.2 数值型
+
+复数：complex64 complex128
+
+### 4.2.1 整型
+
+- 长度不同:int8、int16(C语言short)、int32、int64(C语言long)  可以描述负数因为可以带符号
+  - 最高位是符号位
+  - rune类型本质上就是int32
+
+- 长度不同无符号:uint8、unit16、uint32、uint64 不可以描述负数 因为是无符号
+
+  u即unsigned，最高位不是符号位
+
+  - ​	byte类型，它是uint8的别名
+
+- 自动匹配平台:int、uint  
+
+  int类型它至少占用32位，但一定注等同于int32，不是int32的别名。要看CPU，32位就是4字节，64位就是8字节。但是，也不是说int是8字节64位，就等同于int64，它们依然是**不同类型**
+
+虽然他们都是整型这一类，但他根本上完全不同的类型，go语言对类型极其敏感，不能互操作。
+
+
+
+**扩展知识**
+
+```
+计算机世界这有二进制数据，每一个位bit表示0或者1，最多表达2种可能性
+unsigned = 无符号 以int8 和 uint8 举例：
+8bits，总共能够表达256种状态
+	int8 -- 1byte -- 8bits 标识正负数将最高位留出来不表示数据状态，用0表示正数 用1表示负数，剩余7bit标识数字
+		7bits，总共能够表达256种状态 -128-128
+		表示 十进制2
+		0 0000010
+		表示 十进制-2
+		1 0000010
+		但计算机中实际上是补码（符合位不动，其余位按照位取反，最后加1）
+		1 1111101 取反
+		1 1111101  +1
+		1 1111110
+补码：把减法当作加法，在计算机中所有减法都变成加法，5 -4 = 1 怎么来的 5 + （-4）= 1 
+uint8 -- 1byte -- 8bits 不能标识负数，所有位都用来标识数字
+	8bits，总共能够表达256种状态只能标识正数
+	十进制2
+	00000010
+```
+
+
+
+### 4.2.2 类型
+
+```go
+fmt.Println Print line 输出到控制台并换行
+fmt.Printf("%T %T %T %T \n",a,b,c,a + b + c)  // format
+Printf 在控制台打印 f是format
+%T 占位符 和后面的值依次对应
+T 表示type，取值的类型
+
+%d digital 数值型，往往用于整数形
+%s 用打印string类型的值
+%q 带引号的字符串%s
+
+fmt.Printf("%[2]T %[1]d\n", rune(m), string(m)) 值从1开始编
+%[indes]，从1开始编号，下一个如果没有指定索引，索引默认是index+1 注意：溢出
+
+type rune = init32  类型别名rune  他是4tytes或32bits int
+type myint int32  // 这不是别名 这里没有 =  这里的意思是 我基于int32 新定义了一个新的类型 myint  在go中只要是不同的类型就是不同的
+type 可以定类型
+
+type B = int32 // 类型别名，B和int32就是同一种类型的不同名字B、rune(go内建的)、int32是一个类型的不同名称罢了
+	var a B = 10 
+	var a rune = 10 
+```
+
+![image-20240505202830662](./../images/image-20240505202830662.png)
+
+```go
+package main
+
+import "fmt"
+
+func main() {
+	var k = 100
+	w := 100
+	var r int = 100
+	fmt.Printf("%T %T %T %T\n", k, w, r, k+w+r)
+	var m int64 = 999
+	fmt.Printf("%T %d \n",m,m)
+	// fmt.Printf(k+w+r+m) // 不可以加 因为go语言是强类型  int 和 int64 根本不是同类型
+	fmt.Println(k+w+r+int(m)) // 强制类型转换，
+}
+
+// 与其他语言不同，即使同是整型这个大类中，在Go中，也不能跨类型计算、如有必要，请强制类型转换
+```
+
+**强制类型转换:**把一个值从一个个类型强制转换到另一种类型，有可能转换失败。
+
+
+
+![image-20240505215759253](./../images/image-20240505215759253.png)
+
+```go
+package main
+
+import "fmt"
+
+func main() {
+	var k = 100
+	w := 100
+	var r int = 100
+	fmt.Printf("%T %T %T %T\n", k, w, r, k+w+r)
+	var m int64 = 999
+	fmt.Printf("%T %d \n", m, m)
+	// fmt.Printf(k+w+r+m) // 不可以加 因为go语言是强类型  int 和 int64 根本不是同类型
+	fmt.Println(k + w + r + int(m))         // 强制类型转换，
+	fmt.Printf("%+v\n", string(m))          // 数值可以转成字符串 ϧ ，（ascli或unicode码）
+	fmt.Printf("%T %d\n", rune(m), rune(m)) // rune = int32  4bits 32bytes
+	fmt.Printf("%[1]T %[1]d\n", rune(m))    // 格式化左边可以写右边的索引，默认右边第一个数值索引是1
+	fmt.Printf("%[2]T %[1]d\n", rune(m), string(m))
+	fmt.Printf("%d,%d;%d.%d]\n", 100, 200, 300, 400)          // 100,200;300.400]  左边只替换%d占位符
+	fmt.Printf("%[1]d %[3]d %[2]d %d \n", 100, 200, 300, 400) // 错误 100 300 200 400 正确 100 300 200 300 如果当前没有给定索引，就按照上一个索引的值+1算出当前的索引
+	fmt.Printf("%[1]d %d %[2]d %d \n", 100, 200, 300, 400)    // 100 200 200 300
+}
+```
+
+
+
+
+
+```go
+package main
+
+import "fmt"
+
+func main() {
+//	var a = 100
+//	var b int64 = 200
+//	var c rune = 300 // type rune = init32  类型别名rune  他是4tytes或32bits int
+
+	/* 这两个的意思完全不同
+	type B = int32    q 指代 int32   q可以和int32类的值互操作      类型别名
+	type x int32	  我创建了一个型类型X 他的类型是int32新的类型	重新定义 虽然你的本质也是int32 但是你是新的类型
+	*/
+	type x int32
+	type B = int32
+	var G B = 100
+	var m x = 111
+//	fmt.Println(G + m)    因为G的类型是B B是int32 m的类型是x x类是也是int32 但是x是新定义的类型 不能直接计算
+fmt.Println(G + int32(m)) 强制类型转换
+}
+
+```
+
+
+
+### 4.2.3 字符和整数

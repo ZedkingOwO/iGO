@@ -1,3 +1,3 @@
-module test1
+module aaa
 
 go 1.22.2

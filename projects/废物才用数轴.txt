@@ -1,0 +1,42 @@
+<------|------|------|------|------|------|------|------|------|---
+             2^7    2^6    2^5    2^4    2^3    2^2    2^1    2^0 
+       	     128      64       32      16        8        4         2         1
+
+IP地址的组成：
+	4个字节或32位 二进制组成
+
+  
+一个字节等于8位二进制：
+		11111111.11111111.11111111.11111111
+	1个字节的8位二进制，从2^0开始，从右往左依次对应直到2^7  也就是最后的第八位
+
+IP地址分为两段：
+	网络位+主机位  （网络位越大，主机位越小。否则反之）
+
+
+从左往右对应
+A类 ：0开始							         0-127
+B类：10开始  =  1 0 * * * * * * . * * * * * * * *      128-191
+C类：110开始=  1 1 0 * * * * * . * * * * * * * *      192-223
+
+
+FROM www.zed.io/baseimages/magedu-centos-base:7.9.2009
+
+
+
+nerdctl build -t  www.zed.io/pub-images/jdk-base:v8.212  .      www.zed.io/baseimages/magedu-centos-base
+
+nerdctl push --insecure-registry  www.zed.io/pub-images/jdk-base:v8.212
+
+
+www.zed.io/baseimages/magedu-centos-base:7.9.2009  
+
+ nerdctl build --build-arg BASE_IMAGE_URL=http://www.zed.io/baseimages/magedu-centos-base:7.9.2009 -t www.zed.io/pub-images/jdk-base:v8.212  .
+
+
+
+nerdctl build -t   www.zed.io/pub-images/jdk-base:v8.212  .
+
+
+
+blkid  name   获取挂载设备id

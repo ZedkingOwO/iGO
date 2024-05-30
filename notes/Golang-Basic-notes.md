@@ -2053,3 +2053,288 @@ if score,line := 50,90; score > line {
 ## 6.5 for循环
 
 注意：Go语音中没有提供while关键字，只有一种循环，简洁。
+
+**C风格for**
+
+```go
+for i := 0; i < 6; i++ {
+    fmt.Print(i)
+}
+1. i := 0 init初始化，在循环开始之前，只执行一次
+2. i < 5  bool,中间部分只能是bool值，这个bool值是true才能执行后续花括号中的语句一次。
+		  如果要执行第二次，需要test检验这个表达式的值是否是true，如果是继续，如果是false，abort
+3. i++    循环体如果执行过一次的结尾时执行。
+
+先初始化，判断i是否小于6，如果i小于6，进入循环体执行代码块。循环体执行完 i++
+最后+到6，在做一次test返回false，循环终止，最后i = 6。
+
+	i := 0; 
+for i < 6; i++ {
+    fmt.Print(i)
+}
+fmt.Print(i) // 把i在外面定义，生效范围变大，最后i=6退出循环
+显示：6
+
+for 不写就是true i++ {
+    fmt.Print(i)
+}
+// 特殊写法
+for i := 1; i < 5; {} // 需要在循环体内部解决死循环的问题，因为如果i的值不变一直小于5，一直执行。
+for i := 1;; {}  // 没有条件，默认为true，必须在循环体语句块中解决死循环问题。
+for i < 10 {}	 // for condition {} condition循环条件
+// 下面这两句一样
+for {} 			 // 死循环
+for ;; {}        // 死循环 相当于for true {}
+```
+
+
+
+### 6.5.1 continue和break
+
+```go
+for i := 0; i < 10; i++ {
+    if i%2 == 0 {
+        continue // 结束当前循环的这一次，然后执行i++，去test，判断能否执行下次循环
+        	     // 循环可以嵌套，结束当前循环就是找离continue最近的for，按代码缩进找
+    }
+    fmt.Print(i)
+}
+
+
+for i := 0;;i++ { // 没写结束条件，死循环。
+    if i == 10 {
+        break
+    }
+    if i%2 == 0 {
+        continue 
+    }
+    if i > 10 {  // 放在这里必须大于等10
+        break    // 终止当前循环 
+       
+    }
+	fmt.Print(i)
+}
+
+MYFOR:
+    for i:= 0; ; i+=2 { // 改成1基数，改正0偶数  i+=2调整步长
+        if i >= 10 { 
+            break MYFOR // 退出MYFOR循环。用于嵌套循环时，退出终止多层循环，可也用goto替代
+          //  goto END	无条件跳转
+        }
+        fmt.Print(i)
+    }
+END:
+fmt.Print(退出)
+0
+2 
+4
+6
+8 
+
+```
+
+
+
+### 6.5.2 goto和label
+
+这是一个被很多语言尘封或者废弃的关键字，它会破坏结构化编程，但是确实能做到便利的无条件跳
+转。
+
+- 跳出多重循环使用，但是问题是为什么要用多重循环?
+- 到同一处标签处统一处理，例如统一错误处理。问题是，写个函数也可以实现。
+
+有时候也能简化一些代码，但是它是双刃剑，**不要轻易使用**。
+
+goto需要配合标签label使用，label就像代码中的锚点，goto将无条件跳到那里开始向后执行代码。
+
+```go
+for i := 0; ; i++ { 
+	if i%2 == 0 { // i & 1 == 0 转成2进制与
+		continue
+	}
+	fmt.Print(i)
+	if i > 10 {
+		goto out
+	}
+}
+tou:
+fmt.Print(退出)
+```
+
+
+
+### 6.5.3 for range
+
+遍历容器中的内容，比如一个字符串是由多个字符组成。容器内所有元素遍历。
+
+```go
+// 遍历：按照某种顺序输出（线性），不重复的把所有元素输出出来。不关心容器内部元素是否有序。
+	a := "asd123"
+ 	for i,v := range a {
+    fmt.Println(i,v)
+}
+// 字符串中是由单个字符组成，单个字符是rune，也就是int32对应unicode表数字
+0 21
+1 45  
+2 78
+3 65
+4 123
+5 15
+6 47
+
+// 在Go语言中，i 字节索引，ascii表 英文占1个字节。字符串中文utf-8，占三个字节
+// for range会自动把字符串转换成utf-8 > unicode
+asd  测  试     utf-8 3byte
+012 345 678
+	b := "asd测试"
+ 	for i,v := range b {
+    fmt.Println(i,v)
+    fmt.Printf("%T %[1]v\n",v) // rune 是unicode码
+}
+0 21
+1 45  
+2 78
+3 27979
+6 35797
+```
+
+
+
+### 6.5.4 嵌套循环
+
+```go
+package main
+
+import "fmt"
+
+func main() {
+	for i := 1; i <= 9; i++ {
+		// fmt.Print(i,i,i,i,i,i,i,i,i,i,i,i)
+		// fmt.Print(i, 1)
+		// fmt.Print(i, 2)
+		// fmt.Print(i, 3)
+		// fmt.Print(i, 4)
+		// fmt.Print(i, 5)
+		// fmt.Print(i, 6)
+		// fmt.Print(i, 7)
+		// fmt.Print(i, 8)
+		// fmt.Print(i, 9)
+		// fmt.Println()
+		for j := 1; j <= i; j++ {
+			fmt.Printf("%d%c%d%c%d\t", i, '*', j, '=', i*j)
+		}
+		fmt.Println()
+	}
+}
+```
+
+![image-20240530223437757](./../images/image-20240530223437757.png)
+
+
+
+## 6.6 随机数
+
+标准库"math/rand"
+我们使用的是**伪随机数**，是内部写好的公式计算出来的。这个公式运行提供一个种子，有这个种子作为起始值开始计算。
+
+- src:= rand.NewSource(100)，使用种子100创建一个随机数源
+- rand.New(rand.NewSource(time.Now().UnixNano())，利用当前时间的纳秒值做种子
+- r10:= rand.New(src)，使用源创建随机数生成器
+- r10.Intn(5)，返回[0,5)的随机整数
+
+```go
+func main(){
+    rand.seed(1)  // 1.20 之后修改种子
+	fmt.println(rand.intn(10)) // 快捷随机 0 - 9 随机数 1.20版本以后才有
+
+        src := rand.NewSource(10) // 种子的源头，也就是随机数公式的起始点。也就是说公式是死的，只要起始点一样算出的值就一样。
+        gen := rand.New(src)	  // 随机数生成器，使用src源。
+    	for i := 0; i < 10; i++ {
+        fmt.Println(gen.intn(8))
+		}
+    // 只要种子一直变化，那么计算的源头就一直变化，得出的值就不同 1.20之前这么些。
+    src := rand.NewSource(time.now().unixnano()) // 取当前实际，纳秒
+    gen := read.New(src)
+    for a := 0; a < 10; i++ {
+        fmt.Println(gen.intn(5))
+    }
+}
+```
+
+
+
+
+
+# 7 数据结构
+
+## 7.1 数值处理
+
+### 7.1.1 取整数部分
+
+```go
+fmt.Print(1/2,3/2,5/2)
+fmt.Print(-1/2,-3/2,-5/2)
+fmt.Print("~~~~~~~~~~~~~~~~~~~~~")
+fmt.Print(math.Celi(2.01),math.Celi(2.5),math.Celi(2.99)) // 只要大于2就往高位取，比2大，3
+fmt.Print(math.Celi(-2.01),math.Celi(-2.5),math.Celi(-2.99)) // -2最大取-2
+fmt.Print("~~~~~~~~~~~~~~~~~~~~~")
+fmt.Print(math.Floor(2.01),math.Floor(2.5),math.Floor(2.99))   // 取小值
+fmt.Print(math.Floor(-2.01),math.Floor(-2.5),math.Floor(-2.99)) 
+fmt.Print("~~~~~~~~~~~~~~~~~~~~~")
+fmt.Print(math.Round(2.01),math.Round(2.5),math.Round(2.99)) // Go中是 四舍五入
+fmt.Print(math.Round(-2.01),math.Round(-2.5),math.Round(-2.99))
+fmt.Print(math.Round(2.01),math.Round(2.5),math.Round(2.99))
+
+运行结果(只保留了整数，小数点后面舍弃了。)
+0 1 2 
+0 -1 -2 
+~~~~~~~~~~~~~~~~~~~~~
+3 3 3 
+-2 -2 -2 
+~~~~~~~~~~~~~~~~~~~~~
+2 2 2 
+-3 -3 -3 
+~~~~~~~~~~~~~~~~~~~~~
+2 3 3      
+```
+
+- / 整数除法，截取整数部分
+- math.ceil 向上取整
+- math.Floor 向下取整
+- math.Round 四舍五入
+
+![image-20240530152559552](./../images/image-20240530152559552.png)
+
+
+
+## 7.2 标准输入
+
+Scan:空白字符分割，回车提交，换行符当作空白字符。
+
+可以用逗号作分隔符，但仅限于整型。字符串不行，会把逗号识别为字符串。
+
+```go
+func main() {
+    var (
+        name string
+        foot  int 
+    )f
+	n,err := fmt.Scanf("%s %d",&name,&foot)
+    if err != nil{
+        panic(err)	// 程序要崩溃，不再执行后续代码。
+    }
+    
+    
+    if err == nil {
+        fmt.println(n,name,age)   // err 为nil=成功，成功时拿到了几个参数。
+    } else {
+         fmt.Println(err) 		  // nil空,没有错误
+    }
+}
+   
+// 我定义了a和b，我希望他们的值来源于标准输入。但Scan函数需要知道a和b的内存地址，才能操作他的值。
+&a 和 &b 分别是变量 a 和 b 的内存地址。当你调用 fmt.Scan(&a, &b) 时，你告诉 fmt.Scan 函数从标准输入读取两个值，并将它们分别存储在由 &a 和 &b 指定的内存位置（即变量 a 和 b 的内存位置）。然后，fmt.Scan 会返回成功读取的项数 n（如果一切正常，应为 2）以及可能发生的任何错误 err。如果 err 为 nil，则表示没有错误发生，并且 a 和 b 已被成功赋值。
+```
+
+fmt.scanf("%s,%d"，&name，&age)中%s会和后面的非空白字符分不清楚，用 abc,20 是匹配不上的，因为除空白字符外，都可以看做是字符串。所以，建议格式字符串中，一律使用空格等空白字符分
+害。

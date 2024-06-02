@@ -3,21 +3,8 @@ package main
 import "fmt"
 
 func main() {
-	for i := 1; i <= 9; i++ {
-		// fmt.Print(i)
-		// fmt.Print(i)
-		// fmt.Print(i)
-		// fmt.Print(i)
-		// fmt.Print(i)
-		// fmt.Print(i)
-		// fmt.Print(i)
-		// fmt.Print(i)
-		// fmt.Print(i)
+	// make函数 构建切片、map、chan
+	var c4 = make([]int, 1, 5)
+	fmt.Printf("%d %d %d\n",c4,len(c4),cap(c4))
 
-		for j := 1; j <= i; j++ {
-			fmt.Printf("%d%c%d%c%d\t", i, '*', j, '=', i*j)
-
-		}
-		fmt.Println()
-	}
 }
